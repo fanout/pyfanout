@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
 name='fanout',
-version='1.0.0',
+version='1.0.1',
 description='Fanout.io library',
 author='Justin Karneges',
 author_email='justin@fanout.io',
