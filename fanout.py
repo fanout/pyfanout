@@ -22,7 +22,7 @@ _threadlocal = threading.local()
 def _get_pubcontrol():
 	assert(realm)
 	assert(key)
-	if not hasattr(_threadlocal, "pubcontrol"):
+	if not hasattr(_threadlocal, 'pubcontrol'):
 		if ssl:
 			scheme = 'https'
 		else:
@@ -38,4 +38,4 @@ def publish(channel, data, id=None, prev_id=None):
 
 def publish_async(channel, data, id=None, prev_id=None, callback=None):
 	pub = _get_pubcontrol()
-	pub.publish_async(channel, Item(FppFormat(data), id, prev_id, callback))
+	pub.publish_async(channel, Item(FppFormat(data), id, prev_id), callback)
