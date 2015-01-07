@@ -1,5 +1,5 @@
 PyFanout
---------
+========
 Author: Justin Karneges <justin@fanout.io>
 
 Fanout.io library for Python.
