@@ -27,16 +27,8 @@ Sample usage
 ```python
 import fanout
 
-def callback(result, message):
-    if result:
-        print('Publish successful')
-    else:
-        print('Publish failed with message: ' + message)
-
 fanout.realm = 'my-realm-id'
 fanout.key = 'my-realm-key'
 
 fanout.publish('some-channel', 'hello')
-fanout.publish('some-channel', 'async hello', blocking=False,
-        callback=callback)
 ```
