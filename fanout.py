@@ -26,7 +26,6 @@ ssl = True
 
 # The JSON object format used for publishing messages to Fanout.io.
 class JsonObjectFormat(Format):
-
 	# Initialize with a value representing the message to be sent.
 	def __init__(self, value):
 		self.value = value
