@@ -59,12 +59,12 @@ def _get_pubcontrol():
 		_threadlocal.pubcontrol = pub
 	return _threadlocal.pubcontrol
 
-# Asynchronously publish the specified data to the specified channel for
-# the configured Fanout.io realm. The blocking parameter indicates whether
-# the call should be blocking or non-blocking. Optionally provide an ID and
-# previous ID to send along with the message, as well a callback method that
-# will be called after publishing is complete and passed the result and error
-# message if an error was encountered.
+# Publish the specified data to the specified channel for the configured
+# Fanout.io realm. The blocking parameter indicates whether the call should
+# be blocking or non-blocking. Optionally provide an ID and previous ID to
+# send along with the message, as well a callback method that will be called 
+# after publishing is complete and passed the result and error message if an
+# error was encountered.
 def publish(channel, data, id=None, prev_id=None, blocking=False, callback=None):
 	pub = _get_pubcontrol()
 	pub.publish(channel, Item(JsonObjectFormat(data), id, prev_id), blocking=blocking, callback=callback)
