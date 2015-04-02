@@ -12,9 +12,7 @@ from pubcontrol import PubControl, Item, Format
 
 # The Fanout module is used for publishing messages to Fanout.io and is
 # configured with a Fanout.io realm and associated key. SSL can either
-# be enabled or disabled. As a convenience, the realm and key
-# can also be configured by setting the 'FANOUT_REALM' and 'FANOUT_KEY'
-# environmental variables. Note that unlike the PubControl class
+# be enabled or disabled. Note that unlike the PubControl class
 # there is no need to call the finish method manually, as it will
 # automatically be called when the calling program exits.
 
@@ -26,6 +24,7 @@ ssl = True
 
 # The JSON object format used for publishing messages to Fanout.io.
 class JsonObjectFormat(Format):
+
 	# Initialize with a value representing the message to be sent.
 	def __init__(self, value):
 		self.value = value
