@@ -9,6 +9,7 @@ from base64 import b64decode
 import threading
 import atexit
 from pubcontrol import PubControl, Item, Format
+import threading
 
 # The Fanout module is used for publishing messages to Fanout.io and is
 # configured with a Fanout.io realm and associated key. SSL can either
@@ -21,6 +22,10 @@ from pubcontrol import PubControl, Item, Format
 realm = None
 key = None
 ssl = True
+
+# The PubControl instance and lock used for synchronization.
+_pubcontrol = None
+_lock = threading.Lock()
 
 # The JSON object format used for publishing messages to Fanout.io.
 class JsonObjectFormat(Format):
@@ -37,27 +42,26 @@ class JsonObjectFormat(Format):
 	def export(self):
 		return self.value
 
-_threadlocal = threading.local()
-
 # An internal method used for retrieving the PubControl instance. The
-# PubControl instance is saved as a thread variable and if an instance
-# is not available when this method is called then one will be created.
+# PubControl instance is saved and if an instance is not available when
+# this method is called then one will be created.
 def _get_pubcontrol():
 	assert(realm)
 	assert(key)
-	if not hasattr(_threadlocal, 'pubcontrol'):
+	_lock.acquire()
+	if _pubcontrol is None
 		if ssl:
 			scheme = 'https'
 		else:
 			scheme = 'http'
-		pub = PubControl({
+		_pubcontrol = PubControl({
 			'uri': '%s://api.fanout.io/realm/%s' % (scheme, realm),
 			'iss': realm,
 			'key': b64decode(key)
 		})
-		atexit.register(pub.finish)
-		_threadlocal.pubcontrol = pub
-	return _threadlocal.pubcontrol
+		atexit.register(_pubcontrol.finish)
+	_lock.release()
+	return _pubcontrol
 
 # Publish the specified data to the specified channel for the configured
 # Fanout.io realm. The blocking parameter indicates whether the call should
