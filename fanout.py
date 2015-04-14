@@ -47,27 +47,27 @@ class JsonObjectFormat(Format):
 # the global values are used. The PubControl instance is saved and if an
 # instance is not available when this method is called then one will be
 # created.
-def _get_pubcontrol(pub_realm=None, pub_key=None, pub_ssl=True):
-	if pub_realm is None and pub_key is None:
-		pub_realm = realm
-		pub_key = key
-		pub_ssl = ssl
-	assert(pub_realm)
-	assert(pub_key)
+def _get_pubcontrol(realm=None, key=None, ssl=True):
+	if realm is None and key is None:
+		realm = globals()['realm']
+		key = globals()['key']
+		ssl = globals()['ssl']
+	assert(realm)
+	assert(key)
 	_lock.acquire()
-	if (pub_realm, pub_key, pub_ssl) not in _pubcontrols:
-		if pub_ssl:
+	if (realm, key, ssl) not in _pubcontrols:
+		if ssl:
 			scheme = 'https'
 		else:
 			scheme = 'http'
-		_pubcontrols[(pub_realm, pub_key, pub_ssl)] = PubControl({
-			'uri': '%s://api.fanout.io/realm/%s' % (scheme, pub_realm),
-			'iss': pub_realm,
-			'key': b64decode(pub_key)
+		_pubcontrols[(realm, key, ssl)] = PubControl({
+			'uri': '%s://api.fanout.io/realm/%s' % (scheme, realm),
+			'iss': realm,
+			'key': b64decode(key)
 		})
-		atexit.register(_pubcontrols[(pub_realm, pub_key, pub_ssl)].finish)
+		atexit.register(_pubcontrols[(realm, key, ssl)].finish)
 	_lock.release()
-	return _pubcontrols[(pub_realm, pub_key, pub_ssl)]
+	return _pubcontrols[(realm, key, ssl)]
 
 # Publish the specified data to the specified channel for the configured
 # Fanout.io realm. The blocking parameter indicates whether the call should
@@ -77,9 +77,9 @@ def _get_pubcontrol(pub_realm=None, pub_key=None, pub_ssl=True):
 # error was encountered. Optionally specify realm, key, and SSL values if
 # different than the global configuration parameters.
 def publish(channel, data, id=None, prev_id=None, blocking=False, callback=None,
-		pub_realm=None, pub_key=None, pub_ssl=True):
-	if pub_realm and pub_key:
-		pub = _get_pubcontrol(pub_realm, pub_key, pub_ssl)
+		realm=None, key=None, ssl=True):
+	if realm and key:
+		pub = _get_pubcontrol(realm, key, ssl)
 	else:
 		pub = _get_pubcontrol()
 	pub.publish(channel, Item(JsonObjectFormat(data), id, prev_id), blocking=blocking, callback=callback)

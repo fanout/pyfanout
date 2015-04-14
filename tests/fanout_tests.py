@@ -102,8 +102,8 @@ class TestFanout(unittest.TestCase):
 	def test_publish_with_custom_realm1(self):
 		pc = PubControlTestClass()
 		fanout._pubcontrols[('realm2', 'key==2', False)] = pc
-		fanout.publish('channel', 'item', pub_realm='realm2',
-				pub_key='key==2', pub_ssl=False)
+		fanout.publish('channel', 'item', realm='realm2',
+				key='key==2', ssl=False)
 		self.assertEqual(pc.publish_channel, 'channel')
 		self.assertEqual(pc.publish_item.export(), 
 				Item(fanout.JsonObjectFormat('item')).export())
@@ -115,8 +115,8 @@ class TestFanout(unittest.TestCase):
 		fanout.ssl = True
 		pc = PubControlTestClass()
 		fanout._pubcontrols[('realm2', 'key==2', False)] = pc
-		fanout.publish('channel', 'item', pub_realm='realm2',
-				pub_key='key==2', pub_ssl=False)
+		fanout.publish('channel', 'item', realm='realm2',
+				key='key==2', ssl=False)
 		self.assertEqual(pc.publish_channel, 'channel')
 		self.assertEqual(pc.publish_item.export(), 
 				Item(fanout.JsonObjectFormat('item')).export())
