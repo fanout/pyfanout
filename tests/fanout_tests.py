@@ -18,8 +18,7 @@ class PubControlTestClass:
 
 class TestFanout(unittest.TestCase):
 	def setUp(self):
-		fanout._threadlocal.pubcontrol = None
-		delattr(fanout._threadlocal, 'pubcontrol')
+		fanout._pubcontrols = dict()
 		fanout.realm = None
 		fanout.key = None
 		fanout.ssl = True
@@ -43,7 +42,7 @@ class TestFanout(unittest.TestCase):
 
 	def test_get_pubcontrol_existing(self):
 		orig_pc = PubControl()
-		fanout._threadlocal.pubcontrol = orig_pc
+		fanout._pubcontrols[('realm', 'key', 'ssl')] = orig_pc
 		fanout.realm = 'realm'
 		fanout.key = 'key'
 		fanout.ssl = 'ssl'	
@@ -68,13 +67,56 @@ class TestFanout(unittest.TestCase):
 		self.assertEqual(pc.clients[0].auth_jwt_key, b64decode('key=='))
 		self.assertEqual(pc.clients[0].uri, 'https://api.fanout.io/realm/realm')
 
+	def test_get_pubcontrol_get_specified(self):
+		pc = fanout._get_pubcontrol('realm', 'key==', True)
+		self.assertEqual(pc.clients[0].auth_jwt_claim, { 'iss': 'realm'})
+		self.assertEqual(pc.clients[0].auth_jwt_key, b64decode('key=='))
+		self.assertEqual(pc.clients[0].uri, 'https://api.fanout.io/realm/realm')
+
+	def test_get_pubcontrol_get_multiple_specified(self):
+		fanout.realm = 'realm'
+		fanout.key = 'key=='
+		fanout.ssl = True	
+		orig_pc = fanout._get_pubcontrol()
+		self.assertEqual(orig_pc.clients[0].auth_jwt_claim, { 'iss': 'realm'})
+		self.assertEqual(orig_pc.clients[0].auth_jwt_key, b64decode('key=='))
+		self.assertEqual(orig_pc.clients[0].uri, 'https://api.fanout.io/realm/realm')
+		new_pc = fanout._get_pubcontrol('realm2', 'key==2', False)
+		self.assertEqual(new_pc.clients[0].auth_jwt_claim, { 'iss': 'realm2'})
+		self.assertEqual(new_pc.clients[0].auth_jwt_key, b64decode('key==2'))
+		self.assertEqual(new_pc.clients[0].uri, 'http://api.fanout.io/realm/realm2')
+		self.assertEqual(orig_pc, fanout._get_pubcontrol())
+
 	def test_publish(self):
 		fanout.realm = 'realm'
 		fanout.key = 'key=='
 		fanout.ssl = True
 		pc = PubControlTestClass()
-		fanout._threadlocal.pubcontrol = pc
+		fanout._pubcontrols[('realm', 'key==', True)] = pc
 		fanout.publish('channel', 'item')
+		self.assertEqual(pc.publish_channel, 'channel')
+		self.assertEqual(pc.publish_item.export(), 
+				Item(fanout.JsonObjectFormat('item')).export())
+		self.assertEqual(pc.publish_blocking, False)
+
+	def test_publish_with_custom_realm1(self):
+		pc = PubControlTestClass()
+		fanout._pubcontrols[('realm2', 'key==2', False)] = pc
+		fanout.publish('channel', 'item', pub_realm='realm2',
+				pub_key='key==2', pub_ssl=False)
+		self.assertEqual(pc.publish_channel, 'channel')
+		self.assertEqual(pc.publish_item.export(), 
+				Item(fanout.JsonObjectFormat('item')).export())
+		self.assertEqual(pc.publish_blocking, False)
+
+	def test_publish_with_custom_realm2(self):
+		fanout.realm = 'realm'
+		fanout.key = 'key=='
+		fanout.ssl = True
+		pc = PubControlTestClass()
+		fanout._pubcontrols[('realm2', 'key==2', False)] = pc
+		fanout.publish('channel', 'item', pub_realm='realm2',
+				pub_key='key==2', pub_ssl=False)
 		self.assertEqual(pc.publish_channel, 'channel')
 		self.assertEqual(pc.publish_item.export(), 
 				Item(fanout.JsonObjectFormat('item')).export())
@@ -85,7 +127,7 @@ class TestFanout(unittest.TestCase):
 		fanout.key = 'key=='
 		fanout.ssl = True
 		pc = PubControlTestClass()
-		fanout._threadlocal.pubcontrol = pc
+		fanout._pubcontrols[('realm', 'key==', True)] = pc
 		fanout.publish('channel', 'item', None, None, True)
 		self.assertEqual(pc.publish_channel, 'channel')
 		self.assertEqual(pc.publish_item.export(), 
@@ -105,7 +147,7 @@ class TestFanout(unittest.TestCase):
 		fanout.key = 'key=='
 		fanout.ssl = True
 		pc = PubControlTestClass()
-		fanout._threadlocal.pubcontrol = pc
+		fanout._pubcontrols[('realm', 'key==', True)] = pc
 		fanout.publish('channel', 'item', 'id', 'prev-id', False,
 				self.callback_for_testing)
 		self.assertEqual(pc.publish_channel, 'channel')
