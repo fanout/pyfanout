@@ -41,6 +41,6 @@ fanout.publish('some-channel', 'async hello', blocking=False,
         callback=callback)
 
 # To publish on a different realm use:
-fanout.publish('some-channel', 'hello', pub_realm='my-other-realm-id',
-        pub_key='my-other-realm-key')
+fanout.publish('some-channel', 'hello', realm='my-other-realm-id',
+        key='my-other-realm-key')
 ```
