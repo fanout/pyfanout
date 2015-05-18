@@ -7,7 +7,6 @@
 
 from base64 import b64decode
 import threading
-import atexit
 from pubcontrol import PubControl, Item, Format
 import threading
 
@@ -65,7 +64,6 @@ def _get_pubcontrol(realm=None, key=None, ssl=True):
 			'iss': realm,
 			'key': b64decode(key)
 		})
-		atexit.register(_pubcontrols[(realm, key, ssl)].close)
 	_lock.release()
 	return _pubcontrols[(realm, key, ssl)]
 
