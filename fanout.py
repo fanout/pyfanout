@@ -65,7 +65,7 @@ def _get_pubcontrol(realm=None, key=None, ssl=True):
 			'iss': realm,
 			'key': b64decode(key)
 		})
-		atexit.register(_pubcontrols[(realm, key, ssl)].finish)
+		atexit.register(_pubcontrols[(realm, key, ssl)].close)
 	_lock.release()
 	return _pubcontrols[(realm, key, ssl)]
 
