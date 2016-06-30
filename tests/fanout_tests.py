@@ -1,4 +1,3 @@
-import sys
 import unittest
 from base64 import b64decode
 from pubcontrol import PubControl, Item
