@@ -11,7 +11,7 @@ author_email='justin@fanout.io',
 url='https://github.com/fanout/pyfanout',
 license='MIT',
 py_modules=['fanout'],
-install_requires=['pubcontrol>=2.2.0,<3'],
+install_requires=['pubcontrol>=2.2.0,<4'],
 classifiers=[
 	'Topic :: Utilities',
 	'License :: OSI Approved :: MIT License'
